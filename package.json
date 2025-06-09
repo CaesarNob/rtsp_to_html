@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "dependencies": {
+    "node-media-server": "^4.0.17",
+    "node-rtsp-stream": "^0.0.9",
+    "ws": "^8.18.2"
+  }
+}
