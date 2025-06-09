@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบกล้องวงจรปิด</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>ระบบดูกล้องวงจรปิด</h1>
+        <div id="rooms-container"></div>
+    </div>
+    <script type="module">
+        import rooms from './data/room.js';
+
+        function createRoomTable() {
+            const container = document.getElementById('rooms-container');
+            const buildings = [...new Set(rooms.map(room => room.building))];
+            
+            buildings.forEach(building => {
+                const buildingDiv = document.createElement('div');
+                buildingDiv.className = 'building-section';
+                buildingDiv.innerHTML = `<h2>${building}</h2>`;
+                
+                const table = document.createElement('table');
+                table.className = 'room-table';
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>ชั้น</th>
+                            <th>ห้อง</th>
+                            <th>จำนวนกล้อง</th>
+                            <th>ดูกล้อง</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rooms
+                            .filter(room => room.building === building)
+                            .map(room => `
+                                <tr>
+                                    <td>${room.floor}</td>
+                                    <td>${room.room}</td>
+                                    <td>${room.cameras.length}</td>
+                                    <td>
+                                        <a href="pages/room-view.html?room=${room.room}" 
+                                           class="view-btn">ดูกล้อง</a>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                    </tbody>
+                `;
+                
+                buildingDiv.appendChild(table);
+                container.appendChild(buildingDiv);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', createRoomTable);
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>มุมมองกล้องวงจรปิด</title>
+    <link rel="stylesheet" href="../css/room-view.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsmpeg@1.0.0/jsmpeg.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="../index.html" class="back-btn">← กลับ</a>
+            <h1 id="room-title">ห้อง</h1>
+        </div>
+        <div id="cameras-grid" class="cameras-grid"></div>
+    </div>
+
+    <script type="module">
+        import rooms from '../data/GIFrooms.js';
+
+        async function initializeRoom() {
+            const params = new URLSearchParams(window.location.search);
+            const roomId = params.get('room');
+            const room = rooms.find(r => r.room === roomId);
+
+            if (!room) {
+                alert('ไม่พบข้อมูลห้อง');
+                return;
+            }
+
+            document.getElementById('room-title').textContent = `${room.building} - ${room.room}`;
+            const grid = document.getElementById('cameras-grid');
+
+            // ล้าง grid ก่อนเพิ่มกล้องใหม่
+            grid.innerHTML = '';
+
+            const setupCamera = async (camera, index) => {
+                const cameraBox = document.createElement('div');
+                cameraBox.className = 'camera-box';
+
+                cameraBox.innerHTML = `
+                    <div class="camera-header">
+                        <h3>${camera.angle}</h3>
+                        <a href="${camera.rtspUrl}" class="rtsp-link" title="เปิดดูด้วย VLC Player">
+                            เปิด RTSP Stream
+                        </a>
+                    </div>
+                    <div class="video-container">
+                        <img src="${camera.gifUrl || '../images/default_camera.gif'}" 
+                             alt="${camera.angle}" 
+                             class="camera-feed"
+                             width="400"
+                             height="215">
+                    </div>
+                `;
+
+                const fullscreenBtn = document.createElement('button');
+                fullscreenBtn.className = 'fullscreen-btn';
+                fullscreenBtn.textContent = 'ดูแบบเต็มจอ';
+                
+                const cameraFeed = cameraBox.querySelector('.camera-feed');
+                fullscreenBtn.onclick = () => {
+                    if (cameraFeed.requestFullscreen) {
+                        cameraFeed.requestFullscreen();
+                    } else if (cameraFeed.webkitRequestFullscreen) {
+                        cameraFeed.webkitRequestFullscreen();
+                    }
+                };
+                cameraBox.appendChild(fullscreenBtn);
+                grid.appendChild(cameraBox);
+            };
+
+            // ตั้งค่ากล้องทุกตัวพร้อมกัน
+            await Promise.all(room.cameras.map(setupCamera));
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeRoom);
+    </script>
+</body>
+</html>
